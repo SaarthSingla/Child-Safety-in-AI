@@ -1,0 +1,12 @@
+{
+  "bands": [
+    "0_5",
+    "6_11",
+    "12_17",
+    "18plus"
+  ],
+  "fit_split": "validation",
+  "method": "temperature_scaling",
+  "n_bins": 15,
+  "temperature": 0.9809926783443957
+}

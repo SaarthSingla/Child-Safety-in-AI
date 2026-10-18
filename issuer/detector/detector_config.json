@@ -1,0 +1,31 @@
+{
+  "colour": "RGB",
+  "crop_rounding": "trunc",
+  "detector": "yolov8n-face",
+  "detector_input_size": 448,
+  "embedded_nms": false,
+  "exported_from": "yolov8n_face.pt",
+  "face_confidence": 0.25,
+  "letterbox_filter": "bilinear",
+  "letterbox_pad_value": 114,
+  "margin": 0.25,
+  "min_face_px": 48,
+  "model_input_size": 224,
+  "model_resize_filter": "bicubic",
+  "multi_face_rel_area": 0.35,
+  "multiple_face_policy": "reject when a non-primary face area >= multi_face_rel_area x primary face area",
+  "nms_iou": 0.7,
+  "normalization_mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "normalization_std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "opset": 12,
+  "source_repo": "arnabdhar/YOLOv8-Face-Detection",
+  "weights_file": "face_detector.onnx"
+}

@@ -1,0 +1,39 @@
+{
+  "component_versions": {
+    "cryptography": "50.0.1",
+    "numpy": "2.0.2",
+    "onnxruntime": "1.29.0",
+    "openvc-core": "1.20.0",
+    "pillow": "11.3.0",
+    "safetensors": "0.7.0",
+    "timm": "1.0.26",
+    "torch": "2.10.0+cu128",
+    "torchvision": "0.25.0+cu128"
+  },
+  "files": {
+    "README.md": "1d71af9911ee1e59becc4eda2f0895c691eb4a0319ba8a7bdd51d2910a57ee82",
+    "credential/credential_type.json": "a45a868c1c3238c20568758f860c0e05ac467bcf941b5898309f022c43b0b09d",
+    "credential/issuer_dev_public.jwk": "b8e8925b1d023af123777e6dd729c0f753b819f39f53819edaf4eb9740f615bc",
+    "detector/detector_config.json": "bd8952e785c1c7bcbe59fb387adbae9ec78543e64dacf8d710460a688f64ff70",
+    "detector/face_detector.onnx": "da3dbe0cf610cd1760b245d19a6180f1f9e6d7fd5c186dcdc887f25cc84a97f5",
+    "model/clip_vit_age_v1.safetensors": "3972c48bcbd70beaec0716eb1b985cd5a39040aa4976f8993c6cc01293330358",
+    "model/model_config.json": "110ee80a82cfcdf4463e1cb374ae1908094b99892ba1faea7bb89717ac33ed99",
+    "policy/calibration.json": "beb83330852c26d26acc5d608ee42e4f7ec988c95d1746b20a554d1419725f07",
+    "policy/issuance_policy.json": "912d08e9445c076dc6dae466f0f75dfd87d718ffc7c2ef9f2378d9bafa592156",
+    "requirements-runtime.txt": "9a2eb2bd7ba24773c1df155827a624dc8c98128d215c8aa860df8fdd805f6624",
+    "runtime/__init__.py": "406e8b957a8d985d7565deec8974ea996b0ec9aecca66ca1326556ff654857d1",
+    "runtime/calibration.py": "897048201120cb224e0e53231a0264e5ed35c592d748fa05683848dba7767bf2",
+    "runtime/credential.py": "0e3630cc13fb5981d75f7f1d75fcf5548b35d9b05e8a14c8c98db16e22115787",
+    "runtime/errors.py": "c29cd112ab8ef88577220f3fa1f1172fbd7e7263f1869c7daaf491c146bb1591",
+    "runtime/estimator.py": "a5710c39aeacc75bccb15680857d1d97e2f61d790fcea52ec9b51a251f812983",
+    "runtime/policy.py": "1f17aec79e01dd58bc8b11297e37750607459ab66b4b7037755aa8453193b874",
+    "runtime/preprocessing.py": "2fb6cc69708a12541d3a2fc0770621415e196eaac65cc5b8b2e31dc7a10536f6",
+    "runtime/service.py": "b5bd58ae5ea84c0e632cd95f79b50dff70fb65ba73bf225e03ceffe40ce89db9",
+    "runtime/session.py": "c496b7abf133e0de3a39e72abc35dd6b8fa2d14833018c26a89a3334777010e3",
+    "runtime/signer.py": "484f8eadaf29e447d37f2caf7c880e5ad5686acebb0deea2e87c4119902afada",
+    "tests/test_credential.py": "a3272e6410fb16ae813d898e6377e49b8a7e533a179a34cc5267702262ac7d36",
+    "tests/test_release_integrity.py": "2fc6602c3d3544fb392349b6710e9f3909fa3e81a81bb4092eecab45dd5fccf2",
+    "tests/test_runtime.py": "0bbbd0a885c341d59b2131b2b7bb4635d24c585d890121aafd926ef76db03cd5"
+  },
+  "release_id": "childsafe-age-runtime-v1.1"
+}

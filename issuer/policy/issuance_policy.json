@@ -1,0 +1,17 @@
+{
+  "adult_policy": {
+    "enabled": true,
+    "minor_gate_threshold": 0.41,
+    "target_minor_recall": 0.98
+  },
+  "confidence_decimals": 2,
+  "credential": {
+    "issuer": "https://issuer.childsafe.demo",
+    "ttl_seconds": 3600,
+    "vct": "urn:childsafe:age-credential:v1"
+  },
+  "min_band_confidence": 0.6,
+  "min_band_confidence_source": "fixed_provisional_research_demo",
+  "note": "min_band_confidence gates the temperature-calibrated probability of the predicted band and becomes prediction_confidence; it is a FIXED provisional research/demo value (0.80), not swept or optimized, applied uniformly to all four bands. minor_gate_threshold gates P(minor)=P(0_5)+P(6_11)+P(12_17) and is the legacy minor/adult gate -- NOT a prediction confidence -- chosen on VALIDATION and used only as the extra adult safety guard on the 18plus band.",
+  "policy_id": "childsafe-issuance-v1_1"
+}

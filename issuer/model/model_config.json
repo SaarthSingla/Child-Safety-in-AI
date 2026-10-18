@@ -1,0 +1,26 @@
+{
+  "architecture": "vit_base_patch16_clip_224.laion2b_ft_in12k_in1k",
+  "bands": [
+    "0_5",
+    "6_11",
+    "12_17",
+    "18plus"
+  ],
+  "drop_path_rate": 0.2,
+  "image_size": 224,
+  "normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "num_classes": 4,
+  "release_id": "childsafe-age-runtime-v1.1",
+  "requested_architecture": "vit_base_patch16_clip_224.laion2b_ft_in12k_in1k"
+}

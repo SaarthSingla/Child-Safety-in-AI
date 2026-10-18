@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+/ios
+/android
+dist/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env*
+*.pem
+*.p12
+*.key
+*.mobileprovision
