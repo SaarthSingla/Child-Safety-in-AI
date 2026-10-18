@@ -165,8 +165,7 @@ Articles marked **18+** open only if your age token says 18+.
 Most testers can skip this. The age checker in `issuer/` is a Python server.
 Its AI model needs a powerful computer (the team runs it on a cloud server with a
 graphics card), and the model file is about 330 MB, stored with
-[Git LFS](https://git-lfs.com) and available to project members only. See
-`issuer/RUNNING.md`.
+[Git LFS](https://git-lfs.com). See `issuer/RUNNING.md`.
 
 It isn't plug-and-play yet: the age checker creates a **new signing key every
 time it starts** and doesn't publish it. Each time, that key has to be copied

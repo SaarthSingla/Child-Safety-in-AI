@@ -3,8 +3,7 @@
 ## Get the model
 
 The age model (`model/clip_vit_age_v1.safetensors`, about 330 MB) is stored with
-[Git LFS](https://git-lfs.com) and is available to project members only. From the
-repository folder:
+[Git LFS](https://git-lfs.com). From the repository folder:
 
 ```bash
 brew install git-lfs

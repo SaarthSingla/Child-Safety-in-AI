@@ -105,7 +105,7 @@ session) and `/issue` (send a selfie, get an age token).
 |---|---|
 | `api.py` | The web server |
 | `runtime/` | Face finding, age estimate, rules for when to refuse, building and signing the token |
-| `model/` | The trained age model (about 330 MB, project members only) |
+| `model/` | The trained age model (about 330 MB, stored with Git LFS) |
 | `detector/` | The face-finding model |
 | `policy/` | Settings for the age estimate and when to refuse |
 | `tests/` | Automated tests |
