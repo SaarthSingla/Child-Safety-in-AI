@@ -1,9 +1,9 @@
 # CHAISE Child Safety Demo
 
-> **Work in progress.** This repository is an early demo of the child safety
-> work in iSPIRT's **CHAISE** project (Children, AI and Safe Environments for
-> Growth). Parts of the design are not built yet, and the code is not ready for
-> real users. See [What works today](#what-works-today).
+> **Work in progress.** This repository is an early demo of  child safety project at IIT Delhi under Prof. Subodh Vishnu Sharma in collaboration with iSPIRT's **CHAISE** project (Children, AI and Safe Environments for
+> Growth). 
+
+> See [What works today](#what-works-today).
 
 ## The idea in brief
 
