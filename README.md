@@ -83,8 +83,8 @@ Footube's articles are labelled by hand.
 
 ## Try it
 
-See **[GETTING_STARTED.md](GETTING_STARTED.md)** for step-by-step instructions to
-install the two apps on your iPhone.
+Each part has its own setup instructions: [wallet](wallet/README.md),
+[platform](platform/README.md) and [issuer](issuer/RUNNING.md).
 
 ## Code structure
 
