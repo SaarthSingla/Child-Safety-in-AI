@@ -4,9 +4,11 @@ import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ArticleCard } from '@/components/ArticleCard';
+import { FamilyBanner } from '@/components/FamilyBanner';
 import { Logo } from '@/components/Logo';
 import { decideArticleAccess } from '@/content/authorization';
 import { CATALOG, type ContentRating } from '@/content/catalog';
+import { familyCheck } from '@/family/familyState';
 import { colors, radii } from '@/theme';
 
 type Filter = 'all' | ContentRating;
@@ -59,6 +61,8 @@ export default function HomeScreen() {
               </Text>
             </View>
 
+            <FamilyBanner />
+
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -88,6 +92,7 @@ export default function HomeScreen() {
             article={item}
             featured={index === 0}
             allowed={decideArticleAccess(item).allowed}
+            family={familyCheck(item.id)}
             onPress={() => router.push(`/article/${item.id}`)}
           />
         )}

@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type Article, isRestricted } from '@/content/catalog';
+import type { FamilyCheck } from '@/family/familyState';
 import { colors, radii, shadow } from '@/theme';
 
 import { ArticleCover } from './ArticleCover';
@@ -9,6 +10,7 @@ import { RatingPill } from './RatingPill';
 export function ArticleCard({
   article,
   allowed,
+  family,
   featured = false,
   onPress,
 }: {
@@ -16,22 +18,31 @@ export function ArticleCard({
   // Whether the reader can already open it (open content, or a verified
   // session that covers it). Display only.
   allowed: boolean;
+  // What the family's rules say about it, if they are on. Display only.
+  family?: FamilyCheck;
   featured?: boolean;
   onPress: () => void;
 }) {
   const restricted = isRestricted(article);
+  const familyBlocked = family?.kind === 'blocked';
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.card, familyBlocked && styles.dimmed, pressed && styles.pressed]}
     >
       <ArticleCover
         accent={article.accent}
         category={article.category}
         height={featured ? 176 : 118}
       >
-        {restricted && (
+        {familyBlocked ? (
+          <View style={[styles.badge, styles.badgeFamily]}>
+            <Text style={styles.badgeText}>
+              {family.decision === 'ask' ? '✋ Ask a guardian' : '👪 Hidden by family rules'}
+            </Text>
+          </View>
+        ) : restricted && (
           <View style={[styles.badge, allowed && styles.badgeUnlocked]}>
             <Text style={[styles.badgeText, allowed && styles.badgeTextUnlocked]}>
               {allowed ? '✓ Unlocked' : '🔒 Age check'}
@@ -65,6 +76,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 16,
     ...shadow,
+  },
+
+  dimmed: {
+    opacity: 0.6,
+  },
+
+  badgeFamily: {
+    backgroundColor: 'rgba(30,58,104,0.88)',
   },
 
   pressed: {

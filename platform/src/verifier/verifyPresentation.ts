@@ -45,6 +45,30 @@ export function verifyPresentation(
   expectations: PresentationExpectations,
   config: VerifierConfig = VERIFIER_CONFIG,
 ): PresentationVerificationResult {
+  return runChecks(presentation, expectations, config);
+}
+
+export type HolderProofExpectations = Omit<PresentationExpectations, 'requirement'>;
+
+// Steps 1-15 only: a valid issuer credential, presented by its holder (Key
+// Binding JWT over this verifier's nonce and audience). No claim needs to be
+// disclosed, and no age decision is made. Used to authenticate data the
+// wallet returns (family-rule curation decisions) without learning anything
+// about the user. It never yields a VerifiedAgeCredential, so it cannot be
+// used to unlock age-gated content.
+export function verifyHolderPresentation(
+  presentation: unknown,
+  expectations: HolderProofExpectations,
+  config: VerifierConfig = VERIFIER_CONFIG,
+): PresentationVerificationResult {
+  return runChecks(presentation, { ...expectations, requirement: null }, config);
+}
+
+function runChecks(
+  presentation: unknown,
+  expectations: Omit<PresentationExpectations, 'requirement'> & { requirement: AgeRequirement | null },
+  config: VerifierConfig,
+): PresentationVerificationResult {
   const checks = {
     issuerSignatureValid: false,
     trustedIssuer: false,
@@ -198,6 +222,12 @@ export function verifyPresentation(
 
     if (timeFailure) {
       return fail(timeFailure);
+    }
+
+    // Holder-proof mode stops here: the presentation is genuine and bound to
+    // this challenge, and no age decision is taken.
+    if (expectations.requirement === null) {
+      return { ...checks, verified: true };
     }
 
     // 16. age_band, only from a disclosure that passed every check above.

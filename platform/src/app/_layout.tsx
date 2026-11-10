@@ -19,6 +19,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="article/[id]" />
           <Stack.Screen name="verify-callback" />
+          <Stack.Screen name="curate-callback" />
         </Stack>
       </DemoBannerFrame>
     </ThemeProvider>

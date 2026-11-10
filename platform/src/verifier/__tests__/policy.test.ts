@@ -69,7 +69,7 @@ beforeEach(() => {
   clearVerifiedSession();
 });
 
-describe('wallet request carries the content label', () => {
+describe('wallet request carries the content labels', () => {
   const base: VerificationRequest = {
     requestId: 'r',
     requestedAgeBand: '12plus',
@@ -80,13 +80,15 @@ describe('wallet request carries the content label', () => {
     expiresAt: 2,
   };
 
-  it('includes the category when given', () => {
-    const url = new URL(buildWalletUrl({ ...base, contentCategory: 'Life skills' }));
-    expect(url.searchParams.get('contentCategory')).toBe('Life skills');
+  it('includes the labels, base64url-encoded, when given', () => {
+    const labels = { items: [{ content_id: 'first-part-time-job', topics: ['life-skills'] }], batch: { labeller: 'x', hashes: [], signature: 's' } };
+    const url = new URL(buildWalletUrl({ ...base, labels }));
+    const encoded = url.searchParams.get('labels')!;
+    expect(JSON.parse(Buffer.from(encoded, 'base64url').toString())).toEqual(labels);
   });
 
-  it('omits it when absent', () => {
-    expect(new URL(buildWalletUrl(base)).searchParams.has('contentCategory')).toBe(false);
+  it('omits them when absent', () => {
+    expect(new URL(buildWalletUrl(base)).searchParams.has('labels')).toBe(false);
   });
 });
 

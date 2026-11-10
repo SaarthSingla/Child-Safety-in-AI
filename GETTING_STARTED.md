@@ -139,14 +139,28 @@ Articles marked **18+** open only if your age token says 18+.
 
 **C. Add a parent rule**
 
-1. In the wallet, open the **Policies** tab and set a 4- to 6-digit PIN.
-2. Under **Custom policy**, choose **Health**, leave it on **Always**, and tap
-   **Add policy**.
-3. In Footube, open *Sleep, Screens and the Teenage Brain* (a Health article) and
-   tap **Verify with ChildSafe Wallet**. The wallet shows **Blocked on this
-   device**, and the article stays locked.
-4. Open *Cyberbullying: How to Spot It and What to Do* (a Society article). It
-   still works.
+Parent rules need the Family Rules server. On your Mac:
+
+```bash
+cd policy && npm install
+cd ../nlpps && npm install
+cp env.example .env     # add a free key from console.groq.com
+npm start
+```
+
+Parents' devices can only approve rules over `https` or on `localhost`. To use a
+phone, put the server behind an `https` tunnel and set `PUBLIC_URL` to its address.
+
+1. Open the Family Rules website, create an account and add a child aged 12 to 17.
+   Tap **Approve on this device**.
+2. Type a rule such as `Hide health content` and tap **Continue**. Check the
+   preview, then tap **Approve on this device**.
+3. Tap **Link a phone** and scan the code with the iPhone's Camera. Confirm in the
+   wallet.
+4. In Footube, tap **Apply family rules**. The Sleep article is now hidden, and the
+   article stays locked.
+5. Open it and tap **Ask a guardian in ChildSafe**. Approve the request on the
+   Family Rules website, then refresh the rules in Footube.
 
 ## If something goes wrong
 

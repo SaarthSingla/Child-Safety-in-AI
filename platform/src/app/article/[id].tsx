@@ -11,6 +11,8 @@ import {
   getVerifiedSession,
 } from '@/content/authorization';
 import { getArticleById, isRestricted, requirementFor } from '@/content/catalog';
+import { manifestFor } from '@/family/labels';
+import { askGuardianInWallet, requestFamilyRules } from '@/family/openWallet';
 import { isRequestExpired, takeOutcome } from '@/verifier/challengeStore';
 import {
   EXPIRED_SESSION_MESSAGE,
@@ -39,8 +41,13 @@ export default function ArticleScreen() {
   // Runs whenever this screen regains focus, e.g. after the wallet hands
   // control back through verify-callback. It only updates display state;
   // whether the article is actually readable is decided by decideArticleAccess().
+  // Family-rule decisions live outside React and change when the wallet
+  // answers, so re-render whenever the screen regains focus.
+  const [, setFocusTick] = useState(0);
+
   useFocusEffect(
     useCallback(() => {
+      setFocusTick((n) => n + 1);
       const session = getVerifiedSession();
 
       if (session && session.expiresAt * 1000 <= Date.now()) {
@@ -133,7 +140,7 @@ export default function ArticleScreen() {
       setVerificationState('verification_requested');
       setStatusMessage(null);
 
-      const request = await startVerification(article.id, requirement, article.category);
+      const request = await startVerification(article.id, requirement, manifestFor([article]));
       const walletUrl = buildWalletUrl(request);
 
       const canOpen = await Linking.canOpenURL(walletUrl);
@@ -220,6 +227,40 @@ export default function ArticleScreen() {
 
               <Text style={styles.footer}>Sample article for demonstration only.</Text>
             </View>
+          ) : decision.reason === 'family_rules' || decision.reason === 'family_rules_refresh' ? (
+            <View style={styles.lockCard}>
+              <View style={styles.lockIconWrap}>
+                <Text style={styles.lockIcon}>👪</Text>
+              </View>
+
+              <Text style={styles.lockTitle}>
+                {decision.reason === 'family_rules_refresh'
+                  ? 'Family rules need a refresh'
+                  : decision.familyDecision === 'ask'
+                    ? 'Needs a guardian’s OK'
+                    : 'Hidden by your family’s rules'}
+              </Text>
+              <Text style={styles.lockText}>
+                {decision.reason === 'family_rules_refresh'
+                  ? 'Your family’s rules can change with the time of day. Ask your wallet to check again.'
+                  : 'Your ChildSafe wallet applies your guardians’ rules. Footube doesn’t know what the rules are, only that this article isn’t available right now.'}
+              </Text>
+
+              <Pressable
+                onPress={() => (decision.reason === 'family_rules_refresh' ? requestFamilyRules() : askGuardianInWallet(article))}
+                style={({ pressed }) => [styles.primaryButton, styles.fullWidth, pressed && styles.primaryButtonDim]}
+              >
+                <Text style={styles.primaryButtonText}>
+                  {decision.reason === 'family_rules_refresh' ? 'Refresh family rules' : 'Ask a guardian in ChildSafe'}
+                </Text>
+              </Pressable>
+
+              {decision.reason === 'family_rules' ? (
+                <Pressable onPress={() => requestFamilyRules()} style={styles.secondaryLink}>
+                  <Text style={styles.secondaryLinkText}>A guardian said yes? Refresh family rules</Text>
+                </Pressable>
+              ) : null}
+            </View>
           ) : (
             <View style={styles.lockCard}>
               <View style={styles.lockIconWrap}>
@@ -255,6 +296,18 @@ export default function ArticleScreen() {
 }
 
 const styles = StyleSheet.create({
+  secondaryLink: {
+    marginTop: 14,
+    alignItems: 'center',
+  },
+
+  secondaryLinkText: {
+    color: colors.muted,
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+
   screen: {
     flex: 1,
     backgroundColor: colors.background,

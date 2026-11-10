@@ -1,0 +1,99 @@
+[
+  {
+    "content_id": "how-bees-build-a-hive",
+    "title": "How Bees Build a Hive Without a Blueprint",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "nature"
+    ],
+    "features": [],
+    "rating_age": 0,
+    "live": false
+  },
+  {
+    "content_id": "your-first-loop",
+    "title": "Coding for Beginners: Your First Loop",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "technology/coding"
+    ],
+    "features": [],
+    "rating_age": 0,
+    "live": false
+  },
+  {
+    "content_id": "why-the-sky-is-blue",
+    "title": "Why the Sky Is Blue (and Sunsets Are Red)",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "science"
+    ],
+    "features": [],
+    "rating_age": 0,
+    "live": false
+  },
+  {
+    "content_id": "sleep-screens-teen-brain",
+    "title": "Sleep, Screens and the Teenage Brain",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "health/sleep"
+    ],
+    "features": [],
+    "rating_age": 12,
+    "live": false
+  },
+  {
+    "content_id": "spotting-cyberbullying",
+    "title": "Cyberbullying: How to Spot It and What to Do",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "social"
+    ],
+    "features": [],
+    "rating_age": 12,
+    "live": false
+  },
+  {
+    "content_id": "first-part-time-job",
+    "title": "Your First Part-Time Job: What to Know Before You Start",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "life-skills"
+    ],
+    "features": [],
+    "rating_age": 12,
+    "live": false
+  },
+  {
+    "content_id": "life-under-siege",
+    "title": "Life Under Siege: The Human Cost of Modern War",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "news/war"
+    ],
+    "features": [],
+    "rating_age": 18,
+    "live": false
+  },
+  {
+    "content_id": "how-gambling-hooks-the-brain",
+    "title": "How Gambling Hooks the Brain",
+    "platform": "did:example:footube",
+    "format": "article",
+    "topics": [
+      "health",
+      "harm/gambling"
+    ],
+    "features": [],
+    "rating_age": 18,
+    "live": false
+  }
+]

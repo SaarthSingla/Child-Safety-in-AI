@@ -1,3 +1,5 @@
+import type { LabelManifest } from '@/family/labels';
+
 export type HolderJWK = {
   kty: 'EC';
   crv: 'P-256';
@@ -18,9 +20,9 @@ export type VerificationRequest = {
   nonce: string;
   createdAt: number;
   expiresAt: number;
-  // Label of the content being opened, so the wallet can apply the
+  // Labels of the content being opened, so the wallet can apply the
   // guardian's policy (CHAISE's on-device second factor).
-  contentCategory?: string;
+  labels?: LabelManifest;
 };
 
 // UI-facing progress of the wallet round trip. Display only: content

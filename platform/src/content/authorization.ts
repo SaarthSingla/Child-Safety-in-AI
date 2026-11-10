@@ -1,3 +1,4 @@
+import { familyCheck } from '@/family/familyState';
 import { satisfiesAgeRequirement } from '@/verifier/policy';
 import type { VerifiedAgeCredential } from '@/verifier/types';
 
@@ -49,7 +50,13 @@ export type AccessDecision =
         // credential against 18+ content).
         | 'insufficient_age_band'
         // Old enough, but the wallet has not approved this article yet.
-        | 'wallet_approval_required';
+        | 'wallet_approval_required'
+        // The family's rules (applied by the wallet) hide this article or
+        // need a guardian's OK.
+        | 'family_rules'
+        // Family rules are on, but the wallet's decisions have expired.
+        | 'family_rules_refresh';
+      familyDecision?: 'ask' | 'hide';
     };
 
 export function decideAccess(
@@ -79,12 +86,25 @@ export function decideAccess(
   return { allowed: true };
 }
 
-// What the app enforces: the platform's own age check (decideAccess) and,
-// for gated articles, the wallet's approval of this specific article.
+// What the app enforces: the family's rules (from the wallet's verified
+// curation decisions), the platform's own age check (decideAccess) and, for
+// gated articles, the wallet's approval of this specific article.
 export function decideArticleAccess(
   article: Article,
   nowMs: number = Date.now(),
 ): AccessDecision {
+  // Family rules come first: they can hide an article the platform itself
+  // would show, and they apply to open articles too.
+  const family = familyCheck(article.id, nowMs);
+
+  if (family.kind === 'stale') {
+    return { allowed: false, reason: 'family_rules_refresh' };
+  }
+
+  if (family.kind === 'blocked') {
+    return { allowed: false, reason: 'family_rules', familyDecision: family.decision };
+  }
+
   const platform = decideAccess(article, verifiedSession, nowMs);
 
   if (!platform.allowed || requirementFor(article) === null) {

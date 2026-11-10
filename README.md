@@ -1,149 +1,127 @@
-# CHAISE Child Safety Demo
+# Family Rules for the CHAISE Child Safety Demo
 
-> **Work in progress.** This repository is an early demo of the child safety
-> work in iSPIRT's **CHAISE** project (Children, AI and Safe Environments for
-> Growth). Parts of the design are not built yet, and the code is not ready for
-> real users. See [What works today](#what-works-today).
+> **Work in progress.** A parent writes a rule in plain words. A child's phone
+> then applies that rule to the content apps want to show. The code is a demo
+> and is not ready for real families.
 
-## The idea in brief
+## The journey of a rule
 
-Many apps need to know whether a user is a child before showing certain
-content. Today that usually means typing in a birth date (easy to fake) or
-uploading an ID card (a lot of personal data handed to every app).
+1. **The parent writes a rule**, such as "hide war news from 9 pm to 6 am". Hindi
+   and Hinglish work too.
+2. **An AI reads the sentence** and fills in a form. If the meaning is unclear,
+   it asks a question. "School nights" always gets a question, because every
+   family means something different.
+3. **Normal code checks the form.** Anything unknown or unsafe is rejected.
+4. **The parent sees the rule in plain words,** with examples of what will change.
+5. **The parent approves it on their own device.** The device signs the rule.
+6. **The server turns the form into precise rules** and tests them with Cedar, a
+   rule engine built for this kind of job.
+7. **The child's phone downloads the rules** and checks the signatures.
+8. **An app asks about its content.** The phone decides *allow*, *ask* or *hide*
+   for each item, then tells the app only that answer.
 
-This project tries a different approach:
+## Design decisions
 
-1. **Check age once.** The user takes a live selfie in a **wallet app** on their
-   phone. A trusted **age checker** estimates an **age range** (such as 12–17 or
-   18+) and gives the phone a digital **age token**, a small card signed by the
-   checker so it can't be forged or edited.
-2. **Prove age anywhere, without revealing who you are.** When an app asks "is
-   this user 12 or older?", the wallet shares only the age range. It doesn't
-   share a name, a birth date or a photo.
-3. **Parents stay in control on the phone.** A parent can add rules in the
-   wallet, such as "no world news" or "nothing after 9 pm". The wallet checks
-   these rules before sharing anything, so the phone can block content even
-   when the app itself would allow it.
+### The AI fills in a form. It never decides.
+AI can misunderstand things, and it can be tricked. So it can only choose from
+fixed words on a form, and it has no way to allow anything. Every decision about
+content is made by ordinary code that gives the same answer every time.
 
-![How the parts fit together](docs/images/architecture-overview.png)
+### The form is turned into rules by fixed code, not by the AI.
+Tricky details, such as a window that crosses midnight, are written once and
+tested. They aren't left for the AI to get right every time.
 
-## How it works
+### The strictest rule wins.
+Rule order never matters, so adding a rule can't quietly change another one. A
+parent can relax a rule only by adding an exception to that rule.
 
-### Step 1: getting an age token
+### A few protections can't be turned off.
+Adult content and serious harm stay blocked, whatever a rule says. Parents can't
+delete these or add exceptions to them, and neither can an AI mistake.
 
-![Getting an age token](docs/images/getting-an-age-token.png)
+### Missing labels don't mean safe, and they don't mean blocked.
+Real apps often say very little about their content. Blocking everything
+unlabelled would make feeds unusable, so the answer depends on what's at stake:
 
-1. The wallet creates a **private key** inside the phone's secure chip (the
-   Secure Enclave). The key can never be copied off the phone. The wallet sends
-   only the matching public key to the age checker.
-2. The wallet runs a **liveness check**: it asks the user to blink, smile, and so
-   on in a random order, and uses the phone's 3D face camera to make sure a real
-   face, not a photo or a screen, is in front of it. It then sends one live
-   selfie.
-3. The age checker's AI model estimates the age range and returns a **signed age
-   token** tied to that phone's key. A token copied to another phone is useless.
+| Rule | Under 13 | 13 to 17 |
+|---|---|---|
+| Serious harm or age limits | Hide | Ask |
+| A family preference like "no war news" | Show | Show |
 
-Steps 4 and 5 in the picture (showing an ID if the age range is disputed) are
-**planned**. So is running the age checker inside a **Clean Confidential Room**:
-a sealed, verifiable computer whose operator can't see or keep the selfies.
+A parent can make a preference stricter by saying that unlabelled content counts
+too. The AI can't change this table, because code sets it.
 
-### Step 2: using the age token
+### Unclear labels count as "not checked".
+If a label uses a word the phone doesn't know, the phone treats that detail as
+not checked. It never assumes the item is safe.
 
-![Using the age token](docs/images/using-the-age-token.png)
+### Labels can unlock an exception only if they're signed.
+Anyone can tag a violent film as "science". So an exception like "science is
+fine" works only on labels signed by an approved labeller.
 
-1. An app (our demo app is called **Footube**) asks the wallet for an age proof.
-   The request includes a one-time random code, so an old proof can't be
-   replayed.
-2. The wallet checks the parent's rules. If they allow it, the secure chip signs
-   the proof.
-3. The wallet sends back only the age range plus that signature.
-4. Footube checks that the token really came from the age checker, that it
-   belongs to this phone, and that the age range is high enough. Only then does
-   it show the content.
+### A rule needs two signatures.
+The server signs it and the parent's device signs it. If someone breaks into the
+server, they still can't change a child's rules on their own.
 
-The **Certification Authority** (a public list of trusted age checkers), the
-**audit log** and **server-side content curation** in the picture are
-**planned**. Today the age checker's public key is built into the apps, and
-Footube's articles are labelled by hand.
+### If anything fails, the phone becomes stricter.
+- A broken or edited policy is refused.
+- An old policy can't replace a newer one.
+- If a rule fails to run, the item needs a parent's OK.
+- If rules go a week without updating, the built-in protections stay on and
+  everything else needs a parent's OK.
 
-## What works today
+### Decisions happen on the child's phone.
+The server never learns what the child is looking at. Apps receive only *allow*,
+*ask* or *hide*, never the reasons. Answers end on the next quarter hour, so the
+timing doesn't reveal bedtime either.
 
-| Part | Status |
-|---|---|
-| Live selfie with liveness check on iPhone | Working |
-| AI age-range estimate and signed age token | Working (on a normal cloud server) |
-| Private key kept in the iPhone's secure chip | Working |
-| Sharing only the age range, with one-time codes | Working |
-| Parent rules in the wallet (by topic and time of day, PIN-protected) | Working (basic) |
-| Footube demo app with age-gated articles | Working |
-| Age checker inside a Clean Confidential Room | Planned |
-| ID check when the age range is disputed | Planned |
-| Certification Authority, audit log, server-side curation | Planned |
-| Android | Planned (**iPhone only for now**) |
+### A child can ask, and a parent's yes is an ordinary change.
+Each approval is previewed, signed and recorded like any other rule. Approving an
+unlabelled item only settles the unknown: if the item is later labelled as
+harmful, it's blocked again.
+
+## How it's organised
+
+```
+policy/     The shared rules: the form, checks, rule maker and signatures
+nlpps/      The parents' website and server, including the AI step
+wallet/     The child's iPhone app, which makes the decisions
+platform/   Footube, a demo app that asks the wallet about its content
+issuer/     The age checker (not changed by this work)
+```
 
 ## Try it
 
-See **[GETTING_STARTED.md](GETTING_STARTED.md)** for step-by-step instructions to
-install the two apps on your iPhone.
-
-## Code structure
-
-```
-Child-Safety-in-AI/
-├── issuer/      The age checker (Python server)
-├── wallet/      The wallet app (iPhone)
-├── platform/    Footube, the demo app with age-gated articles (iPhone)
-└── docs/        Images used in this README
+```bash
+cd policy && npm install
+cd ../nlpps && npm install
+cp env.example .env     # add a free key from console.groq.com
+npm start               # then open http://localhost:8787
 ```
 
-### `issuer/`: the age checker
+Parents' devices need `https` or `localhost` to approve rules. The steps for
+installing the two iPhone apps are in [GETTING_STARTED.md](GETTING_STARTED.md).
 
-A Python web server with three addresses: `/health`, `/issuance/start` (begin a
-session) and `/issue` (send a selfie, get an age token).
+To run the checks, use `npm test` in `policy`, `nlpps`, `wallet` and `platform`.
+`npm run live-check` in `nlpps` sends real sentences to the AI.
 
-| Folder or file | What's in it |
-|---|---|
-| `api.py` | The web server |
-| `runtime/` | Face finding, age estimate, rules for when to refuse, building and signing the token |
-| `model/` | The trained age model (about 330 MB, stored with Git LFS) |
-| `detector/` | The face-finding model |
-| `policy/` | Settings for the age estimate and when to refuse |
-| `tests/` | Automated tests |
+## What isn't solved yet
 
-### `wallet/`: the wallet app
-
-Built with Expo / React Native. The main code is in `wallet/src/`.
-
-| Folder | What's in it |
-|---|---|
-| `app/` | The screens: home, get an age token, approve a request, Policies tab, Settings |
-| `liveness/` | The blink-and-smile liveness check |
-| `crypto/` | Storing the token, and building the proof that only shares the age range |
-| `policy/` | Parent rules: how they're stored and checked |
-| `api/` | Talking to the age checker |
-| `config/` | The age checker's address, and the list of apps the wallet will talk to |
-| `../modules/` | Small pieces of native iPhone code: the secure-chip key and the 3D face camera |
-
-### `platform/`: the Footube demo app
-
-Also Expo / React Native. The main code is in `platform/src/`.
-
-| Folder | What's in it |
-|---|---|
-| `app/` | The screens: article list, article page, and the screen that receives the wallet's answer |
-| `content/` | The demo articles, and the rule for who can open what |
-| `verifier/` | Checking the age proof: signature, phone key, one-time code, age range |
-
-The wallet and Footube talk to each other through links that open one app from
-the other (`childsafewallet://…` and `footube://…`). There's no server between
-them.
-
-## Known limitations
-
-- **iPhone only**, and it needs Face ID (iPhone X or newer). The iOS Simulator
-  can't run the liveness check.
-- The age checker makes a **new signing key every time it restarts**, and that
-  key is built into both apps. After a restart, both apps need updating.
-- Parent rules are protected by a PIN only and aren't signed.
-- Apps installed with a free Apple account **stop opening after 7 days** and need
-  reinstalling.
+- **Labels can be wrong.** A signature shows who made a label, not that it's true.
+  Independent checks are still needed.
+- **Topic matching is simple.** When an app sends no topic, the phone uses a short
+  word list. A real on-device AI model should replace it.
+- **Apps must take part and must obey.** The wallet can't see the screen. A
+  certified app kit and audits are needed.
+- **Moving data between apps is slow on iPhone.** Footube opens the wallet to ask,
+  which doesn't suit an endless feed. Android allows a better way, but it isn't
+  built yet.
+- **A child can delete the wallet or change the phone's clock.** The clock can't
+  be moved back past the last signed time, but deleting the wallet needs Apple's
+  parental controls permission.
+- **The website comes from the server.** A hacked server could serve a fake
+  approval page. A separate parents' app would close this gap.
+- **One parent per child, for now.** Teachers and second parents aren't included.
+- **No screen-time limits yet,** such as "2 hours a day". These need a trusted
+  way to measure usage.
+- **Real parents haven't tried it.** The AI needs testing on many real sentences.

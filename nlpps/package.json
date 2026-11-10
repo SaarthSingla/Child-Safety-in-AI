@@ -1,0 +1,25 @@
+{
+  "name": "chaise-nlpps",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NLPPS: turns a parent's words into a signed child-safety policy.",
+  "type": "module",
+  "scripts": {
+    "start": "tsx --env-file-if-exists=.env src/main.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/main.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "sign-labels": "tsx scripts/sign-labels.ts",
+    "live-check": "tsx --env-file-if-exists=.env scripts/live-check.ts"
+  },
+  "dependencies": {
+    "qrcode-generator": "^1.4.4",
+    "tsx": "^4.20.0"
+  },
+  "devDependencies": {
+    "@noble/curves": "^2.4.0",
+    "@types/node": "^26.6.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.1"
+  }
+}

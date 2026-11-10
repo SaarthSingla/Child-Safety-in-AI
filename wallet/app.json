@@ -8,7 +8,10 @@
     "scheme": "childsafewallet",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.ChildSafeWallet"
+      "bundleIdentifier": "com.anonymous.ChildSafeWallet",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "ChildSafeWallet connects to your family's rules server when it runs on your home or school network."
+      }
     },
     "plugins": [
       "expo-router",

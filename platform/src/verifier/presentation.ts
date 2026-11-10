@@ -3,6 +3,8 @@ import * as Crypto from 'expo-crypto';
 import { registerRequest } from './challengeStore';
 import { VERIFIER_CONFIG } from './config';
 import { bytesToBase64url } from './encoding';
+import { encodeJson, type LabelManifest } from '@/family/labels';
+
 import type { AgeRequirement, VerificationRequest } from './types';
 
 export const WALLET_SCHEME = 'childsafewallet';
@@ -28,7 +30,7 @@ function toQueryString(params: Record<string, string>): string {
 export async function startVerification(
   contentId: string,
   requirement: AgeRequirement,
-  contentCategory?: string,
+  labels?: LabelManifest,
 ): Promise<VerificationRequest> {
   const now = Date.now();
 
@@ -40,7 +42,7 @@ export async function startVerification(
     nonce: await randomToken(24),
     createdAt: now,
     expiresAt: now + REQUEST_TTL_MS,
-    contentCategory,
+    labels,
   };
 
   registerRequest(request, contentId);
@@ -48,9 +50,9 @@ export async function startVerification(
   return request;
 }
 
-// Only the age requirement, the content's category label, the verifier's
-// identity, a callback and the challenge go in the URL: no exact age, name,
-// contact details or selfie.
+// Only the age requirement, the content's labels (so the wallet can apply the
+// family's rules), the verifier's identity, a callback and the challenge go
+// in the URL: no exact age, name, contact details or selfie.
 export function buildWalletUrl(request: VerificationRequest): string {
   const query = toQueryString({
     requestId: request.requestId,
@@ -60,7 +62,7 @@ export function buildWalletUrl(request: VerificationRequest): string {
     nonce: request.nonce,
     createdAt: String(request.createdAt),
     expiresAt: String(request.expiresAt),
-    ...(request.contentCategory ? { contentCategory: request.contentCategory } : {}),
+    ...(request.labels ? { labels: encodeJson(request.labels) } : {}),
   });
 
   return `${WALLET_SCHEME}://verify-request?${query}`;

@@ -12,9 +12,10 @@ import { getOrCreateHolderKey, signWithHolderKey } from '@/crypto/holderKey';
 import { getCredential } from '@/crypto/credentialStore';
 import { buildPresentation } from '@/crypto/keyBinding';
 import { verifySdJwtCredential } from '@/crypto/sdJwt';
-import { evaluatePolicies } from '@/policy/evaluate';
-import { loadPolicies } from '@/policy/store';
-import type { PolicyDecision } from '@/policy/types';
+import { AskGuardianPanel } from '@/nlpps/AskGuardianPanel';
+import { cedarEngine } from '@/nlpps/CedarEngine';
+import { decodeManifest } from '@/nlpps/curation';
+import { decideContent, type WalletDecision } from '@/nlpps/decide';
 
 // Transport-level types for the demo Footube <-> wallet handoff. The
 // cryptographic semantics live entirely in sdJwt.ts; this is only the
@@ -27,13 +28,17 @@ type IncomingParams = {
   nonce: string;
   createdAt: string;
   expiresAt: string;
-  // Label of the content being opened; the guardian policy is checked
-  // against it. Optional: unlabelled content matches every category rule.
-  contentCategory?: string;
+  // The content's labels. Missing labels count as "not checked".
+  labels?: string;
 };
 
-async function checkGuardianPolicy(category: string | undefined): Promise<PolicyDecision> {
-  return evaluatePolicies(await loadPolicies(), { category, now: new Date() });
+// Blocks unless the guardian policy (if any) allows this content. A linked
+// wallet whose policy cannot be verified fails closed.
+function isBlocked(decision: WalletDecision | null): boolean {
+  if (!decision) return true;
+  if (decision.kind === 'no_policy') return false;
+  if (decision.kind === 'unavailable') return true;
+  return decision.result.decision !== 'allow';
 }
 
 function toQueryString(params: Record<string, string>): string {
@@ -48,7 +53,7 @@ export default function VerifyRequestScreen() {
   const params = useLocalSearchParams<IncomingParams>();
   const [status, setStatus] = useState<Status>('reviewing');
   const [error, setError] = useState<string | null>(null);
-  const [policy, setPolicy] = useState<PolicyDecision | null>(null);
+  const [policy, setPolicy] = useState<WalletDecision | null>(null);
 
   const expiresAt = Number(params.expiresAt);
   const createdAt = Number(params.createdAt);
@@ -72,27 +77,22 @@ export default function VerifyRequestScreen() {
     ? undefined
     : findTrustedVerifier(params.verifierId, params.callbackUrl);
 
+  const manifest = decodeManifest(params.labels);
+  const fallbackId = `${params.verifierId}:${params.requestId}`;
+
   useEffect(() => {
     let active = true;
 
-    checkGuardianPolicy(params.contentCategory)
+    decideContent(cedarEngine, manifest, fallbackId)
       .then((decision) => active && setPolicy(decision))
-      // Fail closed: if the policy cannot be read, nothing is presented.
-      .catch(() => active && setPolicy({
-        decision: 'BLOCK',
-        rule: {
-          id: 'unreadable',
-          category: '*',
-          action: 'BLOCK',
-          explanation: 'Guardian policies could not be read on this device.',
-          createdAt: 0,
-        },
-      }));
+      // Fail closed: if the policy cannot be evaluated, nothing is presented.
+      .catch((err) => active && setPolicy({ kind: 'unavailable', reason: err instanceof Error ? err.message : 'evaluation failed', record: null }));
 
     return () => {
       active = false;
     };
-  }, [params.contentCategory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.labels]);
 
   async function respond(extra: Record<string, string>) {
     if (!verifier) {
@@ -130,9 +130,9 @@ export default function VerifyRequestScreen() {
     try {
       // Re-checked at approval time: a time-window rule may have started
       // since the screen opened.
-      const decision = await checkGuardianPolicy(params.contentCategory);
+      const decision = await decideContent(cedarEngine, manifest, fallbackId);
 
-      if (decision.decision === 'BLOCK') {
+      if (isBlocked(decision)) {
         setPolicy(decision);
         setStatus('reviewing');
         return;
@@ -225,31 +225,34 @@ export default function VerifyRequestScreen() {
     );
   }
 
-  if (policy?.decision === 'BLOCK') {
+  if (policy && policy.kind === 'unavailable') {
     return (
       <View style={styles.container}>
-        <Text style={styles.eyebrow}>Guardian policy</Text>
-
-        <Text style={styles.title}>Blocked on this device</Text>
-
+        <Text style={styles.eyebrow}>Family rules</Text>
+        <Text style={styles.title}>Can’t check your family rules</Text>
         <Text style={styles.text}>
-          {verifier.displayName} allows this content
-          {params.contentCategory ? ` (${params.contentCategory})` : ''}, but a
-          guardian policy in this wallet blocks it.
+          This wallet is linked to a guardian, but it doesn’t have a verified copy of
+          their rules right now ({policy.reason}). Open the Policies tab and tap Sync,
+          then try again.
         </Text>
-
-        <View style={[styles.card, styles.blockedCard]}>
-          <Text style={styles.cardLabel}>POLICY</Text>
-          <Text style={styles.blockedReason}>{policy.rule.explanation}</Text>
-          <Text style={styles.note}>
-            No age proof is shared. {verifier.displayName} is only told that a
-            guardian policy blocked this.
-          </Text>
-        </View>
-
         <Pressable style={styles.approveButton} onPress={handlePolicyBlocked}>
           <Text style={styles.approveButtonText}>Back to {verifier.displayName}</Text>
         </Pressable>
+      </View>
+    );
+  }
+
+  if (policy && policy.kind === 'decided' && policy.result.decision !== 'allow') {
+    return (
+      <View style={styles.container}>
+        <AskGuardianPanel
+          record={policy.record}
+          decision={policy.result}
+          message={policy.message}
+          platformName={verifier.displayName}
+          onDone={handlePolicyBlocked}
+          doneLabel={`Back to ${verifier.displayName}`}
+        />
       </View>
     );
   }

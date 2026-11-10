@@ -1,0 +1,23 @@
+{
+  "name": "chaise-policy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared policy logic: rule form, Cedar generator, decisions, signatures.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "sync": "node scripts/sync-to-wallet.mjs",
+    "sync:check": "node scripts/sync-to-wallet.mjs --check"
+  },
+  "dependencies": {
+    "@cedar-policy/cedar-wasm": "4.8.2",
+    "@noble/curves": "^2.0.0",
+    "@noble/hashes": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.1"
+  }
+}
